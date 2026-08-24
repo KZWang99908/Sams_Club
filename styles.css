@@ -1,0 +1,68 @@
+:root{
+  --primary-red:#c8102e;
+  --white:#ffffff;
+  --black:#0b0b0b;
+  --silver:rgba(200,200,200,0.45);
+  --bg:#f7f7f8;
+  --glass-blur:10px;
+}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Arial,sans-serif;margin:0;background:linear-gradient(180deg,var(--bg),#fff);color:var(--black)}
+.site-header{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;background:linear-gradient(90deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));backdrop-filter:blur(var(--glass-blur));position:sticky;top:0;z-index:40}
+.brand{display:flex;flex-direction:column}
+.brand h1{margin:0;font-size:1.6rem;color:var(--primary-red);letter-spacing:0.5px}
+.brand .tag{margin:0;font-size:0.9rem;color:#333;opacity:0.9}
+.slogan{font-weight:600;color:#666;font-size:0.9rem}
+.top-nav button{background:transparent;border:1px solid var(--primary-red);color:var(--primary-red);padding:8px 12px;border-radius:10px;cursor:pointer;backdrop-filter:blur(var(--glass-blur))}
+.container{display:flex;gap:20px;padding:28px;max-width:1200px;margin:20px auto}
+.sidebar{width:280px;background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(255,255,255,0.55));border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);border:1px solid var(--silver);backdrop-filter:blur(var(--glass-blur))}
+.sidebar h2{margin-top:0;color:var(--primary-red)}
+.subject{margin-bottom:14px}
+.subject-btn{width:100%;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:linear-gradient(180deg,rgba(255,255,255,0.5),rgba(255,255,255,0.35));cursor:pointer;color:var(--black);font-weight:600}
+.areas{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.area-btn{padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.75));cursor:pointer;text-align:left;color:#222}
+.area-btn[data-video]{box-shadow:0 6px 18px rgba(200,16,46,0.06);border-color:rgba(200,16,46,0.12)}
+.subject-btn, .area-btn{position:relative;transition:transform 220ms ease, box-shadow 260ms ease, border-color 200ms ease}
+
+/* make all button borders silver */
+.top-nav button, .subject-btn, .area-btn, button{border:1px solid var(--silver)}
+
+/* hover: subtle lift and faint red glow underneath via box-shadow */
+.subject-btn:hover, .area-btn:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(200,16,46,0.12)}
+
+/* active: stronger underglow appearing visually underneath the button */
+.subject-btn.active, .area-btn.active{transform:translateY(-4px);box-shadow:0 18px 40px rgba(200,16,46,0.18);border-color:rgba(200,16,46,0.35)}
+
+/* subtle pulsing glow for active areas */
+.area-btn.active{animation:pulse-glow 2.8s infinite}
+@keyframes pulse-glow{
+  0%{box-shadow:0 12px 30px rgba(200,16,46,0.12)}
+  50%{box-shadow:0 22px 44px rgba(200,16,46,0.20)}
+  100%{box-shadow:0 12px 30px rgba(200,16,46,0.12)}
+}
+
+/* stronger black/red highlights */
+.brand h1{color:var(--black);position:relative}
+.brand h1::after{content:'';display:block;height:4px;width:40px;background:var(--primary-red);margin-top:8px;border-radius:4px}
+.sidebar h2{border-left:4px solid var(--primary-red);padding-left:10px}
+.area-btn[data-video]{border-color:rgba(200,16,46,0.14);color:var(--black);font-weight:700}
+
+.content{flex:1}
+.content-header{background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.85));padding:18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,0.06);border:1px solid var(--silver);backdrop-filter:blur(var(--glass-blur))}
+#player-wrap{margin-top:18px;background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,255,255,0.9));padding:16px;border-radius:12px;min-height:320px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,0.05);box-shadow:inset 0 -6px 24px rgba(0,0,0,0.03)}
+#player-wrap iframe{width:100%;height:520px;border-radius:10px;border:0}
+.notes{margin-top:18px}
+#notes{width:100%;min-height:120px}
+textarea{width:100%;min-height:120px;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.06);background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,255,255,0.9))}
+.site-footer{text-align:center;padding:18px;color:#444}
+
+/* subtle animated shine for liquid look */
+.glass-shine{position:relative;overflow:hidden}
+.glass-shine::after{content:'';position:absolute;left:-120%;top:-50%;width:40%;height:200%;background:linear-gradient(120deg,transparent,rgba(255,255,255,0.7),transparent);transform:skewX(-20deg);opacity:0.6;animation:shine 6s linear infinite}
+@keyframes shine{0%{left:-120%}50%{left:120%}100%{left:-120%}}
+
+@media(max-width:900px){
+  .container{flex-direction:column;padding:12px}
+  .sidebar{width:100%}
+  #player-wrap iframe{height:260px}
+}

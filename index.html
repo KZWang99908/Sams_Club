@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Sam's Club — Learning Hub</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<header class="site-header glass-shine">
+		<div class="brand">
+			<h1>Sam's Club</h1>
+			<p class="tag">Student Learning Hub</p>
+			<div class="slogan" id="slogan">Learn. Grow. Repeat.</div>
+		</div>
+		<nav class="top-nav">
+			<button id="add-resource">+ Add Resource</button>
+		</nav>
+	</header>
+
+	<main class="container">
+		<aside class="sidebar">
+			<h2>Subjects</h2>
+
+			<div class="subject">
+				<button class="subject-btn">Mathematics ▾</button>
+				<div class="areas">
+					<button class="area-btn" data-area="math-algebra" data-video="https://www.youtube.com/embed/M7lc1UVf-VE">Algebra</button>
+					<button class="area-btn" data-area="math-geometry">Geometry</button>
+				</div>
+			</div>
+
+			<div class="subject">
+				<button class="subject-btn">Science ▾</button>
+				<div class="areas">
+					<button class="area-btn" data-area="sci-bio">Biology</button>
+					<button class="area-btn" data-area="sci-chem">Chemistry</button>
+				</div>
+			</div>
+
+			<div class="subject">
+				<button class="subject-btn">History ▾</button>
+				<div class="areas">
+					<button class="area-btn" data-area="hist-world">World History</button>
+					<button class="area-btn" data-area="hist-us">US History</button>
+				</div>
+			</div>
+
+			<div class="subject">
+				<button class="subject-btn">English ▾</button>
+				<div class="areas">
+					<button class="area-btn" data-area="eng-literature">Literature</button>
+					<button class="area-btn" data-area="eng-writing">Writing</button>
+				</div>
+			</div>
+		</aside>
+
+		<section class="content">
+			<div class="content-header">
+				<h2 id="current-area">Welcome</h2>
+				<p class="sub">Select a subject and area to load a video resource.</p>
+			</div>
+
+			<div id="player-wrap">
+				<div id="player-placeholder">
+					<p>No video loaded. Click an area or use "Add Resource" to paste a YouTube link.</p>
+				</div>
+			</div>
+
+			<div class="notes">
+				<h3>Notes</h3>
+				<textarea id="notes" placeholder="Personal study notes (saved locally)"></textarea>
+			</div>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<small>Sam's Club — built for student learning</small>
+	</footer>
+
+	<script src="script.js"></script>
+</body>
+</html>
