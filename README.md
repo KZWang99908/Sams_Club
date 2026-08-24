@@ -17,3 +17,10 @@ Customization
 - Update colors in `styles.css` (CSS variables `--bvw-blue` and `--bvw-gold`).
  - Update colors in `styles.css` (CSS variables `--primary-red`, `--white`, `--black`, `--silver`).
  - The header now includes rotating slogans and a liquid glass visual; adjust slogans in `script.js`.
+
+Admin panel
+- Click the `Admin` button in the header to open a whitelist-protected admin modal.
+- This demo uses client-side sample accounts (`alice` / `alpha123`, `bob` / `bravo456`).
+- Use the panel to add lessons; lessons persist in `localStorage` and appear in the Lessons list.
+ - This demo uses client-side sample accounts (`alice` / `alpha123`, `bob` / `bravo456`, `KevinW` / `Kw@10125686`).
+ - Use the panel to add lessons; lessons persist in `localStorage` and appear in the Lessons list.
