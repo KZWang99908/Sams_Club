@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded',()=>{
       btn.classList.add('active');
       const vid = btn.dataset.video;
       loadVideo(btn.textContent, vid);
+      // notify listeners that active area changed
+      document.dispatchEvent(new CustomEvent('area-changed',{detail:{area: areaKey}}));
     });
   });
 
@@ -82,6 +84,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // ensure active classes for initial state
   const activeArea = document.querySelector('.area-btn.active') || document.querySelector('.area-btn[data-video]');
   if(activeArea) activeArea.classList.add('active');
+  if(activeArea){ document.dispatchEvent(new CustomEvent('area-changed',{detail:{area: activeArea.dataset.area}})); }
   
   // rotating slogans
   const slogans = [
@@ -180,6 +183,8 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(addBtn) addBtn.disabled = !adminSignedIn();
     }
 
+    function getCurrentArea(){ const a = document.querySelector('.area-btn.active'); return a ? a.dataset.area : null; }
+
     adminBtn && adminBtn.addEventListener('click', ()=>{ showModal(); loginForm.classList.remove('hidden'); panel.classList.add('hidden'); });
     closeBtn && closeBtn.addEventListener('click', hideModal);
 
@@ -194,14 +199,14 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(isWhitelisted(u,p)){
         sessionStorage.setItem('samsclub-admin', u);
         loginForm.classList.add('hidden'); panel.classList.remove('hidden'); feedback.textContent = 'Signed in as '+u;
-        setAdminUIState(); loadAdminState(); refreshLessons();
+        setAdminUIState(); loadAdminState(); refreshLessons(getCurrentArea());
       } else {
         feedback.textContent = 'Invalid credentials.';
       }
     });
 
     logout && logout.addEventListener('click', ()=>{
-      sessionStorage.removeItem('samsclub-admin'); feedback.textContent = 'Logged out.'; loginForm.classList.remove('hidden'); panel.classList.add('hidden'); setAdminUIState(); refreshLessons();
+      sessionStorage.removeItem('samsclub-admin'); feedback.textContent = 'Logged out.'; loginForm.classList.remove('hidden'); panel.classList.add('hidden'); setAdminUIState(); refreshLessons(getCurrentArea());
     });
 
     function loadAdminState(){
@@ -256,7 +261,7 @@ document.addEventListener('DOMContentLoaded',()=>{
             if(idx>-1){ items[idx].video = null; saveLessons(items); }
             const btn = document.querySelector(`[data-area="${lesson.area}"]`);
             if(btn) delete btn.dataset.video;
-            refreshLessons();
+            refreshLessons(getCurrentArea());
           });
           controls.appendChild(unlink);
         }
@@ -268,7 +273,7 @@ document.addEventListener('DOMContentLoaded',()=>{
           const remaining = items.filter(it=>it.id!==lesson.id);
           saveLessons(remaining);
           if(lesson.area && lesson.video) localStorage.removeItem('video:'+lesson.area);
-          refreshLessons();
+          refreshLessons(getCurrentArea());
         });
         controls.appendChild(del);
       }
@@ -277,10 +282,23 @@ document.addEventListener('DOMContentLoaded',()=>{
       wrap.appendChild(el);
     }
 
-    function refreshLessons(){
-      const wrap = document.getElementById('lessons-list'); if(!wrap) return; wrap.innerHTML='';
-      const items = loadLessons(); items.forEach(renderLesson);
+    function refreshLessons(area){
+      const wrap = document.getElementById('lessons-list');
+      const section = document.getElementById('lessons-section');
+      if(!wrap || !section) return;
+      wrap.innerHTML = '';
+      const items = loadLessons();
+      const filtered = area ? items.filter(it => it.area === area) : [];
+      if(filtered.length === 0){
+        section.style.display = 'none';
+        return;
+      }
+      section.style.display = 'block';
+      filtered.forEach(renderLesson);
     }
+
+    // listen for area changes from the main UI
+    document.addEventListener('area-changed', (e)=>{ refreshLessons(e.detail && e.detail.area); });
 
     // hook add lesson
     const addBtn = document.getElementById('lesson-add');
@@ -293,13 +311,13 @@ document.addEventListener('DOMContentLoaded',()=>{
         if(!title) { feedback.textContent = 'Title required.'; return; }
         const lessons = loadLessons();
         const lesson = {id:Date.now(), title, area: area||'misc', video: video||null, content };
-        lessons.unshift(lesson); saveLessons(lessons); refreshLessons(); feedback.textContent = 'Lesson added.';
+        lessons.unshift(lesson); saveLessons(lessons); refreshLessons(getCurrentArea()); feedback.textContent = 'Lesson added.';
         // If area exists in sidebar, attach video
         if(area && video){ localStorage.setItem('video:'+area, video); const btn = document.querySelector(`[data-area="${area}"]`); if(btn) btn.dataset.video = video; }
       });
     }
 
     // initialize
-    refreshLessons(); loadAdminState();
+    refreshLessons(getCurrentArea()); loadAdminState();
   })();
 });
