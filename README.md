@@ -20,7 +20,7 @@ Customization
 
 Admin panel
 - Click the `Admin` button in the header to open a whitelist-protected admin modal.
-- This demo uses client-side sample accounts (`alice` / `alpha123`, `bob` / `bravo456`).
-- Use the panel to add lessons; lessons persist in `localStorage` and appear in the Lessons list.
+ - Only admins can add lessons or embed/remove videos.
+ - Click the `Admin` button in the header to open a whitelist-protected admin modal.
  - This demo uses client-side sample accounts (`alice` / `alpha123`, `bob` / `bravo456`, `KevinW` / `Kw@10125686`).
- - Use the panel to add lessons; lessons persist in `localStorage` and appear in the Lessons list.
+ - Use the panel to add lessons; lessons persist in `localStorage` and appear in the Lessons list. Admins can also attach/unlink videos and delete lessons.

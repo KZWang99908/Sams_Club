@@ -45,7 +45,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 
   // Add Resource button: prompt for subject/area and YouTube URL
-  document.getElementById('add-resource').addEventListener('click',()=>{
+  const addResourceBtn = document.getElementById('add-resource');
+  const isAdminGlobal = ()=> !!sessionStorage.getItem('samsclub-admin');
+  addResourceBtn.addEventListener('click',()=>{
+    if(!isAdminGlobal()){
+      alert('Only admins can add resources. Please sign in via Admin.');
+      const adminBtn = document.getElementById('admin-login'); if(adminBtn) adminBtn.click();
+      return;
+    }
     const area = prompt('Enter area id (e.g. math-algebra or sci-bio)');
     if(!area) return;
     const url = prompt('Paste full YouTube embed URL (https://www.youtube.com/embed/VIDEO_ID) or watch URL');
@@ -166,6 +173,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     function showModal(){ modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false'); }
     function hideModal(){ modal.classList.add('hidden'); modal.setAttribute('aria-hidden','true'); }
 
+    function adminSignedIn(){ return !!sessionStorage.getItem('samsclub-admin'); }
+
+    function setAdminUIState(){
+      const addBtn = document.getElementById('add-resource');
+      if(addBtn) addBtn.disabled = !adminSignedIn();
+    }
+
     adminBtn && adminBtn.addEventListener('click', ()=>{ showModal(); loginForm.classList.remove('hidden'); panel.classList.add('hidden'); });
     closeBtn && closeBtn.addEventListener('click', hideModal);
 
@@ -180,19 +194,20 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(isWhitelisted(u,p)){
         sessionStorage.setItem('samsclub-admin', u);
         loginForm.classList.add('hidden'); panel.classList.remove('hidden'); feedback.textContent = 'Signed in as '+u;
-        loadAdminState();
+        setAdminUIState(); loadAdminState(); refreshLessons();
       } else {
         feedback.textContent = 'Invalid credentials.';
       }
     });
 
     logout && logout.addEventListener('click', ()=>{
-      sessionStorage.removeItem('samsclub-admin'); feedback.textContent = 'Logged out.'; loginForm.classList.remove('hidden'); panel.classList.add('hidden');
+      sessionStorage.removeItem('samsclub-admin'); feedback.textContent = 'Logged out.'; loginForm.classList.remove('hidden'); panel.classList.add('hidden'); setAdminUIState(); refreshLessons();
     });
 
     function loadAdminState(){
       const who = sessionStorage.getItem('samsclub-admin');
       if(who){ showModal(); loginForm.classList.add('hidden'); panel.classList.remove('hidden'); feedback.textContent = 'Signed in as '+who; }
+      setAdminUIState();
     }
 
     // Lessons management
@@ -204,15 +219,61 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(!wrap) return;
       const el = document.createElement('div');
       el.className = 'lesson-item';
-      el.textContent = lesson.title;
-      el.addEventListener('click', ()=>{
-        // attach video to area if provided
-        if(lesson.video){
+      const title = document.createElement('div'); title.textContent = lesson.title;
+      title.style.fontWeight = '600';
+      el.appendChild(title);
+
+      const meta = document.createElement('div'); meta.style.fontSize='12px'; meta.style.opacity=0.8; meta.textContent = lesson.area || 'misc';
+      el.appendChild(meta);
+
+      const controls = document.createElement('div'); controls.style.marginTop='8px'; controls.style.display='flex'; controls.style.gap='8px';
+
+      const playBtn = document.createElement('button'); playBtn.textContent = 'Play'; playBtn.className='small';
+      playBtn.addEventListener('click', ()=>{ loadVideo(lesson.title, lesson.video || null); });
+      controls.appendChild(playBtn);
+
+      const isAdmin = adminSignedIn();
+      if(isAdmin){
+        const attach = document.createElement('button'); attach.textContent='Attach'; attach.className='small';
+        attach.addEventListener('click', ()=>{
+          if(!lesson.area) return alert('Lesson has no area id.');
+          if(!lesson.video) return alert('Lesson has no video to attach.');
+          localStorage.setItem('video:'+lesson.area, lesson.video);
           const btn = document.querySelector(`[data-area="${lesson.area}"]`);
-          if(btn){ btn.dataset.video = lesson.video; localStorage.setItem('video:'+lesson.area, lesson.video); }
+          if(btn) btn.dataset.video = lesson.video;
+          alert('Video attached to area '+lesson.area);
+        });
+        controls.appendChild(attach);
+
+        if(lesson.video){
+          const unlink = document.createElement('button'); unlink.textContent='Unlink Video'; unlink.className='small';
+          unlink.addEventListener('click', ()=>{
+            if(!confirm('Remove video for area '+lesson.area+'?')) return;
+            localStorage.removeItem('video:'+lesson.area);
+            // update lesson record
+            const items = loadLessons();
+            const idx = items.findIndex(it=>it.id===lesson.id);
+            if(idx>-1){ items[idx].video = null; saveLessons(items); }
+            const btn = document.querySelector(`[data-area="${lesson.area}"]`);
+            if(btn) delete btn.dataset.video;
+            refreshLessons();
+          });
+          controls.appendChild(unlink);
         }
-        loadVideo(lesson.title, lesson.video || null);
-      });
+
+        const del = document.createElement('button'); del.textContent='Delete'; del.className='small danger';
+        del.addEventListener('click', ()=>{
+          if(!confirm('Delete lesson "'+lesson.title+'"? This will remove the lesson and its attached video.')) return;
+          const items = loadLessons();
+          const remaining = items.filter(it=>it.id!==lesson.id);
+          saveLessons(remaining);
+          if(lesson.area && lesson.video) localStorage.removeItem('video:'+lesson.area);
+          refreshLessons();
+        });
+        controls.appendChild(del);
+      }
+
+      el.appendChild(controls);
       wrap.appendChild(el);
     }
 
