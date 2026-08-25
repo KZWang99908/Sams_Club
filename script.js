@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const MANUAL_LESSONS = [
     // Example structure — add your lessons here:
     // { id: 1, title: 'Intro to Algebra', area: 'math-algebra', video: 'https://www.youtube.com/embed/VIDEO_ID', content: 'Short lesson notes' },
+    {id: 1, title: 'Intro to Chemistry', area: 'science-chemistry', video: 'https://www.youtube.com/embed/ZacZpScAiHViGXl5', content: 'Basic concepts of chemistry and their properties'}
   ];
 
   // Helper: persist manual lessons into localStorage only if lessons are empty
