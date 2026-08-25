@@ -69,13 +69,65 @@ document.addEventListener('DOMContentLoaded',()=>{
     const btn = document.querySelector(`[data-area="${area}"]`);
     if(btn){ btn.dataset.video = embed; alert('Resource saved and attached to existing area.'); }
     else alert('Resource saved. Create a button with data-area="'+area+'" to attach it in the sidebar.');
+    // update any lesson buttons that may rely on this
+    renderSidebarLessons();
   });
 
   // Notes autosave
   const notes = document.getElementById('notes');
   const notesKey = 'samsclub-notes';
+  let currentLessonId = null;
+  // load global notes by default
   notes.value = localStorage.getItem(notesKey) || '';
-  notes.addEventListener('input', ()=> localStorage.setItem(notesKey, notes.value));
+  notes.addEventListener('input', ()=>{
+    if(currentLessonId){
+      localStorage.setItem('lesson-notes:'+currentLessonId, notes.value);
+    } else {
+      localStorage.setItem(notesKey, notes.value);
+    }
+  });
+
+  // When area changes, clear lesson view and show global notes
+  document.addEventListener('area-changed', ()=>{ currentLessonId = null; notes.value = localStorage.getItem(notesKey) || ''; });
+
+  // Render lesson buttons inside sidebar under their matching area
+  function renderSidebarLessons(){
+    // remove existing lesson-link nodes
+    document.querySelectorAll('.lesson-link').forEach(n=>n.remove());
+    const lessons = (function(){ try{ return JSON.parse(localStorage.getItem('lessons')||'[]'); }catch(e){return [];} })();
+    lessons.forEach(lesson=>{
+      if(!lesson.area) return;
+      const areaBtn = document.querySelector(`[data-area="${lesson.area}"]`);
+      if(!areaBtn) return;
+      // create small lesson button
+      const btn = document.createElement('button');
+      btn.className = 'lesson-link';
+      btn.textContent = lesson.title;
+      btn.dataset.lessonId = lesson.id;
+      btn.style.display = 'block';
+      btn.style.margin = '6px 0 0 12px';
+      btn.style.padding = '6px 8px';
+      btn.style.fontSize = '13px';
+      btn.style.borderRadius = '8px';
+      btn.style.border = '1px solid rgba(0,0,0,0.06)';
+      btn.style.background = '#fff';
+      btn.addEventListener('click', ()=>{
+        // mark parent area active
+        document.querySelectorAll('.area-btn').forEach(a=>a.classList.remove('active'));
+        areaBtn.classList.add('active');
+        // dispatch area change
+        document.dispatchEvent(new CustomEvent('area-changed',{detail:{area: lesson.area}}));
+        // load lesson video and notes
+        loadVideo(lesson.title, lesson.video || null);
+        currentLessonId = lesson.id;
+        const stored = localStorage.getItem('lesson-notes:'+lesson.id);
+        notes.value = stored !== null ? stored : (lesson.content || '');
+      });
+      // insert after the area button
+      const parent = areaBtn.parentElement;
+      if(parent) parent.insertBefore(btn, areaBtn.nextSibling);
+    });
+  }
 
   // Load default welcome state if any sample in sidebar data-video
   const first = document.querySelector('.area-btn[data-video]');
@@ -85,6 +137,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   const activeArea = document.querySelector('.area-btn.active') || document.querySelector('.area-btn[data-video]');
   if(activeArea) activeArea.classList.add('active');
   if(activeArea){ document.dispatchEvent(new CustomEvent('area-changed',{detail:{area: activeArea.dataset.area}})); }
+  // render lesson buttons in sidebar for any saved lessons
+  renderSidebarLessons();
   
   // rotating slogans
   const slogans = [
@@ -205,14 +259,14 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(isWhitelisted(u,p)){
         sessionStorage.setItem('samsclub-admin', u);
         loginForm.classList.add('hidden'); panel.classList.remove('hidden'); feedback.textContent = 'Signed in as '+u;
-        setAdminUIState(); loadAdminState(); refreshLessons(getCurrentArea());
+        setAdminUIState(); loadAdminState(); refreshLessons(getCurrentArea()); renderSidebarLessons();
       } else {
         feedback.textContent = 'Invalid credentials.';
       }
     });
 
     logout && logout.addEventListener('click', ()=>{
-      sessionStorage.removeItem('samsclub-admin'); feedback.textContent = 'Logged out.'; loginForm.classList.remove('hidden'); panel.classList.add('hidden'); setAdminUIState(); refreshLessons(getCurrentArea());
+      sessionStorage.removeItem('samsclub-admin'); feedback.textContent = 'Logged out.'; loginForm.classList.remove('hidden'); panel.classList.add('hidden'); setAdminUIState(); refreshLessons(getCurrentArea()); renderSidebarLessons();
     });
 
     function loadAdminState(){
@@ -264,10 +318,10 @@ document.addEventListener('DOMContentLoaded',()=>{
             // update lesson record
             const items = loadLessons();
             const idx = items.findIndex(it=>it.id===lesson.id);
-            if(idx>-1){ items[idx].video = null; saveLessons(items); }
-            const btn = document.querySelector(`[data-area="${lesson.area}"]`);
-            if(btn) delete btn.dataset.video;
-            refreshLessons(getCurrentArea());
+              if(idx>-1){ items[idx].video = null; saveLessons(items); }
+              const btn = document.querySelector(`[data-area="${lesson.area}"]`);
+              if(btn) delete btn.dataset.video;
+              refreshLessons(getCurrentArea()); renderSidebarLessons();
           });
           controls.appendChild(unlink);
         }
@@ -279,7 +333,7 @@ document.addEventListener('DOMContentLoaded',()=>{
           const remaining = items.filter(it=>it.id!==lesson.id);
           saveLessons(remaining);
           if(lesson.area && lesson.video) localStorage.removeItem('video:'+lesson.area);
-          refreshLessons(getCurrentArea());
+          refreshLessons(getCurrentArea()); renderSidebarLessons();
         });
         controls.appendChild(del);
       }
@@ -322,7 +376,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         }
         const lessons = loadLessons();
         const lesson = {id:Date.now(), title, area: area||'misc', video: video||null, content };
-        lessons.unshift(lesson); saveLessons(lessons); refreshLessons(getCurrentArea()); feedback.textContent = 'Lesson added.';
+        lessons.unshift(lesson); saveLessons(lessons); refreshLessons(getCurrentArea()); renderSidebarLessons(); feedback.textContent = 'Lesson added.';
         // If area exists in sidebar, attach video
         if(area && video){
           localStorage.setItem('video:'+area, video); const btn = document.querySelector(`[data-area="${area}"]`); if(btn) btn.dataset.video = video;
