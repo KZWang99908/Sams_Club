@@ -317,16 +317,15 @@ document.addEventListener('DOMContentLoaded',()=>{
         if(!title) {
           feedback.textContent = 'Title required.'; return;
         }
+        if(!isAdminGlobal()) {
+          feedback.textContent = 'Only admins can create lessons.'; return;
+        }
         const lessons = loadLessons();
         const lesson = {id:Date.now(), title, area: area||'misc', video: video||null, content };
         lessons.unshift(lesson); saveLessons(lessons); refreshLessons(getCurrentArea()); feedback.textContent = 'Lesson added.';
         // If area exists in sidebar, attach video
         if(area && video){
-          if(isAdminGlobal()){
-            localStorage.setItem('video:'+area, video); const btn = document.querySelector(`[data-area="${area}"]`); if(btn) btn.dataset.video = video;
-          } else{
-            feedback.textContent += ' (Only admins can create lessons.)';
-          }
+          localStorage.setItem('video:'+area, video); const btn = document.querySelector(`[data-area="${area}"]`); if(btn) btn.dataset.video = video;
         }
       });
     }
