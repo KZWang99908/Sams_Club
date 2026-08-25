@@ -173,10 +173,16 @@ document.addEventListener('DOMContentLoaded',()=>{
     const logout = document.getElementById('admin-logout');
     const feedback = document.getElementById('admin-feedback');
 
-    function showModal(){ modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false'); }
-    function hideModal(){ modal.classList.add('hidden'); modal.setAttribute('aria-hidden','true'); }
+    function showModal(){
+      modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false');
+    }
+    function hideModal(){
+      modal.classList.add('hidden'); modal.setAttribute('aria-hidden','true');
+    }
 
-    function adminSignedIn(){ return !!sessionStorage.getItem('samsclub-admin'); }
+    function adminSignedIn(){
+      return !!sessionStorage.getItem('samsclub-admin');
+    }
 
     function setAdminUIState(){
       const addBtn = document.getElementById('add-resource');
@@ -308,12 +314,20 @@ document.addEventListener('DOMContentLoaded',()=>{
         const area = document.getElementById('lesson-area').value.trim();
         const video = document.getElementById('lesson-video').value.trim();
         const content = document.getElementById('lesson-content').value.trim();
-        if(!title) { feedback.textContent = 'Title required.'; return; }
+        if(!title) {
+          feedback.textContent = 'Title required.'; return;
+        }
         const lessons = loadLessons();
         const lesson = {id:Date.now(), title, area: area||'misc', video: video||null, content };
         lessons.unshift(lesson); saveLessons(lessons); refreshLessons(getCurrentArea()); feedback.textContent = 'Lesson added.';
         // If area exists in sidebar, attach video
-        if(area && video){ localStorage.setItem('video:'+area, video); const btn = document.querySelector(`[data-area="${area}"]`); if(btn) btn.dataset.video = video; }
+        if(area && video){
+          if(isAdminGlobal()){
+            localStorage.setItem('video:'+area, video); const btn = document.querySelector(`[data-area="${area}"]`); if(btn) btn.dataset.video = video;
+          } else{
+            feedback.textContent += ' (Only admins can create lessons.)';
+          }
+        }
       });
     }
 
