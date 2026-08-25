@@ -14,8 +14,6 @@
 			<div class="slogan" id="slogan">Learn. Grow. Repeat.</div>
 		</div>
 		<nav class="top-nav">
-			<button id="add-resource">+ Add Resource</button>
-			<button id="admin-login" class="admin-btn">Admin</button>
 		</nav>
 	</header>
 
@@ -89,31 +87,7 @@
 		<small>Sam's Club — built for student learning</small>
 	</footer>
 
-	<!-- Admin modal / panel -->
-	<div id="admin-modal" class="modal hidden" aria-hidden="true">
-		<div class="modal-panel">
-			<button id="admin-close" class="modal-close">✕</button>
-			<div id="admin-forms">
-				<div id="login-form" class="admin-form">
-					<h3>Admin Login</h3>
-					<label>Username<input id="admin-username" /></label>
-					<label>Password<input id="admin-password" type="password" /></label>
-					<button id="admin-submit">Sign In</button>
-					<p class="hint">Only whitelisted accounts can access admin controls.</p>
-				</div>
-				<div id="admin-panel" class="admin-form hidden">
-					<h3>Admin Panel</h3>
-					<label>Lesson Title<input id="lesson-title" /></label>
-					<label>Area ID (e.g. math-algebra)<input id="lesson-area" /></label>
-					<label>Video Embed URL<input id="lesson-video" placeholder="https://www.youtube.com/embed/VIDEO_ID"/></label>
-					<label>Content<textarea id="lesson-content"></textarea></label>
-					<button id="lesson-add">Add Lesson</button>
-					<button id="admin-logout" class="danger">Logout</button>
-					<div id="admin-feedback" class="feedback"></div>
-				</div>
-			</div>
-		</div>
-	</div>
+
 
 	<script src="script.js"></script>
 </body>
